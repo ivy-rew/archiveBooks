@@ -3,6 +3,8 @@
 # post processing for Archive.org books:
 # https://gist.github.com/cemerson/043d3b455317d762bb1378aeac3679f3#instructions
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 inDir=high
 
 inFiles=${inDir}/*.jpg
@@ -15,23 +17,28 @@ if [ ! -z "$2" ]; then
   outDir="$2"
 fi
 
+echo "archive tools: $DIR"
+
 fetchCleaner(){
-  if [ ! -f "textcleaner" ]; then
+  if [ ! -f "$DIR/textcleaner" ]; then
     # http://www.fmwconcepts.com/imagemagick/textcleaner/index.php
-    wget -o textcleaner http://www.fmwconcepts.com/imagemagick/downloadcounter.php?scriptname=textcleaner&dirname=textcleaner
-    chmod +x textcleaner
+    uri=http://www.fmwconcepts.com/imagemagick/downloadcounter.php?scriptname=textcleaner&dirname=textcleaner
+    wget -o "$DIR/textcleaner" "$uri"
+    sudo chmod +x "$DIR/textcleaner"
   fi
 }
 
 fetchJb2(){
   if ! [ -x "$(command -v jbig2)" ]; then
     sudo apt install autotools-dev automake libtool libleptonica-dev
+    where=$PWD
+    cd $DIR
     git clone https://github.com/agl/jbig2enc
     cd jbig2enc
     ./autogen.sh
     ./configure && make
     sudo make install
-    cd ..
+    cd $where
   fi
 }
 
@@ -41,7 +48,7 @@ cleanBg(){
   for page in ${inFiles}; do
     echo $page
     file=$(basename $page)
-    ./textcleaner -s 2 $page $outDir/clean/$file.gif
+    $DIR/textcleaner -s 2 $page $outDir/clean/$file.gif
   done
 }
 
