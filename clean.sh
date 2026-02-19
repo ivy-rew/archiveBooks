@@ -3,12 +3,14 @@
 # post processing for Archive.org books:
 # https://gist.github.com/cemerson/043d3b455317d762bb1378aeac3679f3#instructions
 
-inFiles=high/*.jpg
+inDir=high
+
+inFiles=${inDir}/*.jpg
 if [ ! -z "$1" ]; then
   inFiles="$1"
 fi
 
-outDir=cleanHigh
+outDir=out
 if [ ! -z "$2" ]; then
   outDir="$2"
 fi
@@ -35,21 +37,21 @@ fetchJb2(){
 
 cleanBg(){
   fetchCleaner
-  mkdir -p $outDir
+  mkdir -p $outDir/clean
   for page in ${inFiles}; do
     echo $page
     file=$(basename $page)
-    ./textcleaner -s 2 $page $outDir/$file.gif
+    ./textcleaner -s 2 $page $outDir/clean/$file.gif
   done
 }
 
 jb2Encode(){
   fetchJb2
-  mkdir -p $outDir
+  mkdir -p $outDir/jb2
   for page in ${inFiles}; do
     echo $page
     file=$(basename $page)
-    jbig2 -t 0.9 -T 150 -O $outDir/$file.jb2 $page
+    jbig2 -t 0.9 -T 150 -O $outDir/jb2/$file.jb2 $page
   done
 }
 
