@@ -8,16 +8,17 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 inDir=high
 
 inFiles=${inDir}/*.jpg
-if [ ! -z "$1" ]; then
-  inFiles="$1"
+if [ ! -z "$2" ]; then
+  inFiles="$2"
 fi
 
 outDir=out
-if [ ! -z "$2" ]; then
-  outDir="$2"
+if [ ! -z "$3" ]; then
+  outDir="$3"
 fi
 
 echo "archive tools: $DIR"
+
 
 fetchCleaner(){
   if [ ! -f "$DIR/textcleaner" ]; then
@@ -62,5 +63,36 @@ jb2Encode(){
   done
 }
 
+jb2Pdf(){
+  pdfMerge $outDir/jb2
+}
 
-#./textcleaner images/wilberforceshenr0000davi_0469.jpg wilberforceshenr0000davi_0469.tiff
+pdfMerge(){
+  inDir=$1
+  what=$(basename $inDir)
+  mkdir -p $outDir/pdf$what
+  for page in ${inDir}/*; do
+    echo $page
+    file=$(basename $page)
+    convert $page $outDir/pdf$what/${file}.pdf
+  done
+  bookOut=$outDir/$book-$what.pdf
+  pdfunite $outDir/pdf$what/*.pdf $bookOut
+  echo "PDF created: $bookOut"
+}
+
+jb2Book(){
+  jb2Encode
+  jb2Pdf
+}
+
+first=$(echo ${inFiles} | cut -d ' ' -f 1)
+book=$(basename ${first%.*})
+echo "book: $book"
+
+
+if [ "$1" == "jb2" ]; then
+  jb2Book
+else
+  echo "Usage: $0 [jb2]"
+fi
