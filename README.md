@@ -9,6 +9,6 @@ How to:
 3. Clone this repo
 4. Run the script with parameter, being in the parent of the 'high' resolution images: `clean.sh jb2`
 
-Run `clean.sh ocr` after `clean.sh jb2` to OCR the existing per-page PDFs in `out/pdfjb2`, one at a time, then merge the results into `out/<book>-jb2-ocr.pdf`. OCRmyPDF's temporary files are cleaned up normally. `OCR_LANG` defaults to `eng`. This mode requires OCRmyPDF, Tesseract, and Poppler's `pdfunite`.
+Run `clean.sh ocr` after `clean.sh jb2` to OCR the merged book PDF in one OCRmyPDF invocation. OCRmyPDF processes pages in parallel by default (up to the available CPU cores) and writes `out/<book>-jb2-ocr.pdf`; its temporary files are cleaned up normally. `OCR_LANG` defaults to `eng`. This mode requires OCRmyPDF and Tesseract.
 
 

@@ -68,29 +68,21 @@ jb2Pdf(){
 }
 
 ocrPdf(){
-  local pdfDir="$outDir/pdfjb2"
-  local ocrDir="$outDir/ocr"
-  local page file
+  local inputPdf="$outDir/$book-jb2.pdf"
+  local bookOut="$outDir/$book-jb2-ocr.pdf"
 
   if ! command -v ocrmypdf >/dev/null 2>&1; then
     echo "ocrmypdf not found" >&2
     return 1
   fi
+  if [[ ! -f "$inputPdf" ]]; then
+    echo "Book PDF not found: $inputPdf; run the jb2 mode first" >&2
+    return 1
+  fi
 
-  mkdir -p "$ocrDir"
-  for page in "$pdfDir"/*.pdf; do
-    file=$(basename "$page")
-    echo "OCR: $page"
-    rm -f "$ocrDir/$file"
-    if ! ocrmypdf --output-type pdf --optimize 0 -l "${OCR_LANG:-eng}" \
-      "$page" "$ocrDir/$file"; then
-      return 1
-    fi
-  done
-
-  bookOut="$outDir/$book-jb2-ocr.pdf"
-  pdfunite "$ocrDir"/*.pdf "$bookOut"
-  echo "Searchable PDF created: $bookOut"
+  rm -f "$bookOut"
+  ocrmypdf --output-type pdf --optimize 0 -l "${OCR_LANG:-eng}" \
+    "$inputPdf" "$bookOut"
 }
 
 pdfMerge(){
