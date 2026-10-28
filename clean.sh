@@ -67,6 +67,32 @@ jb2Pdf(){
   pdfMerge $outDir/jb2
 }
 
+ocrPdf(){
+  local pdfDir="$outDir/pdfjb2"
+  local ocrDir="$outDir/ocr"
+  local page file
+
+  if ! command -v ocrmypdf >/dev/null 2>&1; then
+    echo "ocrmypdf not found" >&2
+    return 1
+  fi
+
+  mkdir -p "$ocrDir"
+  for page in "$pdfDir"/*.pdf; do
+    file=$(basename "$page")
+    echo "OCR: $page"
+    rm -f "$ocrDir/$file"
+    if ! ocrmypdf --output-type pdf --optimize 0 -l "${OCR_LANG:-eng}" \
+      "$page" "$ocrDir/$file"; then
+      return 1
+    fi
+  done
+
+  bookOut="$outDir/$book-jb2-ocr.pdf"
+  pdfunite "$ocrDir"/*.pdf "$bookOut"
+  echo "Searchable PDF created: $bookOut"
+}
+
 pdfMerge(){
   inDir=$1
   what=$(basename $inDir)
@@ -93,6 +119,8 @@ echo "book: $book"
 
 if [ "$1" == "jb2" ]; then
   jb2Book
+elif [ "$1" == "ocr" ]; then
+  ocrPdf
 else
-  echo "Usage: $0 [jb2]"
+  echo "Usage: $0 [jb2|ocr]"
 fi
